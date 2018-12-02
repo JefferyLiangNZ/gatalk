@@ -174,8 +174,11 @@
 
 			<section>
 				<section>
-				<h2 style="color: grey"> >> Warning: some biased opinions about </h2>
-				<h2>AWS tool</h2>
+				<p style="color: grey"> >> opinions based on my experience</p>
+				<h2>something about AWS tool</h2>
+			
+				<img style="display:inline-block;width:46%;vertical-align:middle;" class="plain" data-src="images/laugh.gif" />        		
+				<img style="display:inline-block;width:46%;vertical-align:middle;" class="plain" data-src="images/giphy.gif" />			
 				</section>
 				<section class="deep">
 					
@@ -307,17 +310,23 @@ awslogs get [cloudwatchlogs] -S -G --start [start_time] --end [end_time] \
 						FAN-IN: use utility-level lambda Lamda invocations 
 					</p>
 				</section>
+
+				<section class="deep">
+					<h3> Bonus to share </h3>
+
+					<img style="display:inline-block;width:66%;vertical-align:middle;" class="plain" data-src="images/fun2.gif">
+				</section>
 				<section class="deep">
 					<h3>A little learning from Serverless</h3>
 					<p>
 
-						>> Lambda's Throttling/Concurrency 
+						>> Lambda's Throttling/Concurrency behaviour
 					</p>
 					<p style="color: grey">
-						>> Lambda's termination
+						>> Lambda's termination (uploading an empty handler, or destory function/deployment pack)
 					</p>
 					<p >
-						>> Lamda failures (Timeout, Deadletter failure, DB credit Drain out )
+						>> Lamda failures <br/>(Timeout, Memory, Deadletter sending failure, DB connection/credit Drainage )
 					</p>
 					<p style="color: grey">
 						>> On-demand services(in terms of billing): Lambda, 
@@ -329,14 +338,16 @@ awslogs get [cloudwatchlogs] -S -G --start [start_time] --end [end_time] \
 				</section>				
 					<section class="deep">
 
-						<h3>SNS can be used for </h3>
-						<ul>
-							<li>real-time event </li>
-							<li>
-								manual triggering; </li>
-							<li> DRY_RUN triggering </li>
+						<h3>AWS Gotcha?? </h3>
+						<p>Updating certain resources' configuration If there are multiple stacks share them
+						(either Cloudformation or Terraform) </p>
+
+						<p> Stuff like subnetwork, RDS, or S3 could be shared resources between stacks or projects </p>
+						<p> Could I properly notify another stack when apply changes to one stack </p>
+						<p>Cloudformation doesn't allow me to add/delete certain notification rule, 
+						I could only creating a new S3 and its notification rules</p>
 							
-					<h2 style="color:grey" class="fragment"> When working on this, I hope to these could happen:  ==> </h2>
+					<h2 style="color:grey" class="fragment"> Maybe life will be better if  ==> </h2>
 				</section>	
 				
 				<section class="deep">
