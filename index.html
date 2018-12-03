@@ -33,6 +33,9 @@
 		body {
 			height: 100%;
 		}
+		ul.bean li {
+			margin-left: 0.2em;
+		}
 		</style>
 		<!-- Printing and PDF exports -->
 		<script>
@@ -151,7 +154,7 @@
 
 					<h2>Customization /adaption II</h2>
 					<ul>
-						Add serveral deployment modules into Terraform
+						Add several deployment modules into Terraform
 						<li >Credstash toolkit/role/policy setup</li>
 						<li >Cloudfront setup/strengthen</li>
 						<li >Cognito user pool provision / UI Customization</li>
@@ -187,7 +190,7 @@ Especially `Terraform state / plan` command
 
 "Terraform state surgery" to Cloud deployment 
 is similar to
-"Git interactive rebashing" to Git repository manipulation
+"Git interactive rebasing" to Git repository manipulation
 					</code></pre>
 
 					<pre style="zoom: 1.2;" ><code class="python">#CloudwatchLogs is sooo hard to understand...
@@ -214,7 +217,7 @@ awslogs get [cloudwatchlogs] -S -G --start [start_time] --end [end_time] \
 					<h2>GNSS Archive</h2>
 					<p class=" fade-in">Q: Run out of disk space </p>
 					<p class=" fade-in">Sol: Upload into Amazon</p>
-					<p data-fragment-index="1" class="fragment fade-in">Anyting else?</p>
+					<p data-fragment-index="1" class="fragment fade-in">Anything else?</p>
 					<ul>
 					<li data-fragment-index="1" class="fragment fade-in">
 						How about future files(Poll-And-Pull? or push by others?)
@@ -234,9 +237,7 @@ awslogs get [cloudwatchlogs] -S -G --start [start_time] --end [end_time] \
 				<section class="deep">
 					<h3> VISION </h3>
 					<p>The authoritative GNSS data management system for
-					 storing 
-					 searching
-					 sharing
+					 storing searching sharing
 					</p>
 					<h3 data-fragment-index="1" class="fragment fade-in"> Key components </h3>
 					<p data-fragment-index="1" class="fragment fade-in"> Backend: A S3 file index and a collection of Lambda/SNS/SQS </p>
@@ -279,7 +280,7 @@ awslogs get [cloudwatchlogs] -S -G --start [start_time] --end [end_time] \
 					<p> FTP=>S3; S3=>S3</p>
 				</section>
 				<section class="deep">
-					<h3> 2.S3 Catalog </h3>	
+					<h3> 2.S3 Catalog/Index </h3>
 					<img style="display:inline-block;width:45%;vertical-align:middle;" class="plain" data-src="images/s3-catalogue.png" >
 					<p > Parse header or query sitelog </p>
 				</section>
@@ -295,57 +296,94 @@ awslogs get [cloudwatchlogs] -S -G --start [start_time] --end [end_time] \
 					<li> vpce-interface to S3 </li>
 					<li> Nat-Gateway and Bastion-Host </li>
 					</ul>
+						<img style="display:inline-block;width:48%;vertical-align:middle;" class="plain" data-src="images/CPU_Utilization.png" >
+					
+						<img style="display:inline-block;width:48%;vertical-align:middle;" class="plain" data-src="images/write_latency.png" >
+						<span style="margin: 0 35px">  CPU Utilization(%) </span> <span style="margin: 0 45px">  DB Write Latency (sec) </span>
+						
 					<br/>
 					
 				</section>
 
 				<section class="deep">
-					<h3>Some patterns that I used in this project:</h3>
-					<p style="color: grey">
+					<h3>Some patterns that are used</h3>
+					<p style="color: grey; margin-bottom: 1.3em">
 						FAN-OUT: use SNS ; So SQS Queue, Kinesis, Lambda could all get triggered by the same message/event
 					</p>
-					<p>
-						Decouple and FAN-IN: use SQS (for decoupling domain-level lambda and utility-level lambda)
+					<p style="color: grey; margin-bottom: 1.3em">
+						Decouple: use SQS (for decoupling domain-level lambda and utility-level lambda)
 					</p>
-					<p style="color: grey">						
-						FAN-IN: use utility-level lambda Lamda invocations 
+					<p style="color: grey; margin-bottom: 1.3em">
+						FAN-IN: use utility-level lambda Lamda invocations;
+						ElasticSearch/Database: Different Cloudwatch logs all stream into one ES/DB instance.
 					</p>
 				</section>
 
 				<section class="deep">
-					<h3> Bonus to share </h3>
+					<h3> BONUS </h3>
 
 					<img style="display:inline-block;width:66%;vertical-align:middle;" class="plain" data-src="images/fun2.gif">
 				</section>
 				<section class="deep">
-					<h3>A little learning from Serverless</h3>
+					<h3>Lesson learned in Serverless</h3>
 					<p>
-
 						>> Lambda's Throttling/Concurrency behaviour
-					</p>
-					<p style="color: grey">
-						>> Lambda's termination (uploading an empty handler, or destory function/deployment pack)
-					</p>
-					<p >
-						>> Lamda failures <br/>(Timeout, Memory, Deadletter sending failure, DB connection/credit Drainage )
-					</p>
-					<p style="color: grey">
-						>> On-demand services(in terms of billing): Lambda, 
-						  RDS => DynamoDB/ Aurora Serverless
-					</p>
-					<p >
-						>> Lambda retry (explicitly invoke, or invoked by other services)
-					</p>
-				</section>				
-					<section class="deep">
+						and CloudWatch metrics (Err, Invocation, Duration, Throttles AND concurrentExecutions)
+<pre>{
+    "metrics": [
+        [ "AWS/Lambda", "(Metrics name)", 
+        "FunctionName", "...", 
+        "Resource", "....", 
+        { "stat": "Sum" } ]
+    ],
+    "region": "ap-southeast-2",
+    "view": "timeSeries",
+}</pre><a href="images/system.png">image</a>
 
-						<h3>AWS Gotcha?? </h3>
+				</section>	
+
+				<section class="deep">
+					
+					
+					<p>
+						>> Lambda's termination: HOW? <br/> replace with an empty handler, or destory function/deployment pack instead?
+					</p>
+					<p >
+						>> Lambda failures handling <br/>
+					</p>
+					<ul class="bean">
+						<li>Local timeout (IO/memory capped, or long tasks)</li>
+						<li>Failure to Deadletter SNS+SQS (retries X times)</li>
+						<li>Deadletter Errors</li>
+						<li>Eventual timeout: Lambda network issue/timeout</li>
+						<li>Eventual timeout: Downstream services timeout/deep queue/retries</li>
+						<li>Downstream connection/credit drain out </li>
+					</ul>
+
+				</section>
+				<section class="deep">	
+					<p style="color: grey">
+						>> On-demand services(in terms of billing): Lambda <br/> 
+						  RDS => DynamoDB/ Aurora Serverless
+					</p>								
+					<p >
+						>> Lambda retries (explicitly invoke, or invoked by other services) <br/> Lambda + Concatetion
+					</p>
+					<p  style="color: grey">
+						>> Lambda limitation (VPC related, Running related, Memory-CPU related ) 
+					</p>
+				</section>
+				<section class="deep">
+					<h3>One AWS Gotcha?? </h3>
+					<img style="display:inline-block;width:65%;vertical-align:middle;" class="plain" data-src="images/fun3.gif">
+				</section>
+					<section class="deep">
 						<p>Updating certain resources' configuration If there are multiple stacks share them
 						(either Cloudformation or Terraform) </p>
 
-						<p> Stuff like subnetwork, RDS, or S3 could be shared resources between stacks or projects </p>
-						<p> Could I properly notify another stack when apply changes to one stack </p>
-						<p>Cloudformation doesn't allow me to add/delete certain notification rule, 
+						<p style="color:grey"> Stuff like subnetwork, RDS, or S3 could be shared resources between stacks or projects </p>
+						<p style="color:grey"> Could I properly notify another stack when apply changes to one stack </p>
+						<p style="color:grey"> Cloudformation doesn't allow me to add/delete certain notification rule, 
 						I could only creating a new S3 and its notification rules</p>
 							
 					<h2 style="color:grey" class="fragment"> Maybe life will be better if  ==> </h2>
@@ -414,33 +452,39 @@ awslogs get [cloudwatchlogs] -S -G --start [start_time] --end [end_time] \
 - such as CIS benchemark for hardening Docker/Linux os;
 - Incremental backup process in AWS S3 or Glacier;
 - Bastion-Server access to EC2 or Use SSM for random commands, or batch jobs;
-- Securing access to Console, Developer credential, using MFA;
+- Securing access to console, Developer credential, using MFA;
 - How do GA enforce the rotation of RSA-Keypair/Deployment secrets in Vault automatically;
 - How do GA enable Developer's Security Session Token for Developers, 
 - What are the critical scenarioes do GA enforce MFA (like delete Bucket, files)?; 
-- which "conditions"(in policy configuration) you have ever used for restricting S3, SNS, EC2, Lambda;
+- which "conditions"(in policy configuration) you have ever used for controlling access to S3, SNS, EC2, Lambda;
 - What's your key auditing areas for Cloudtrail/AWS Config;
 
+** What's your Do's, Don'ts, Gotchas and rules that all GA's developers follows
+(GA internal curated cheatsheets in AWS/Azure / General development life cycle)
+
 ** DevOps /Production Monitoring
-(Implement RDS changset capture -- Row level change;
-(Monitoring Cloudwatch Metrics, also disk space/CPU credits;
-(Monitoring Application Logs;
-(Mock environment for unittest;
-(important metrics/ keywords to check/filter;
-(Infra test specs;
+- (Implement RDS changset capture -- Row level change;
+- (Monitoring Cloudwatch Metrics, also disk space/CPU credits;
+- (Monitoring Application Logs;
+- (Mock environment for unittest;
+- (important metrics/ keywords to check/filter;
+- (Infra test specs;
 
 ** Management
-(Resource Naming, Tagging, Cost Tagging;
-(Identity or IAM best practices;
-(How you manage/group servics like SecurityGroup, Role, are there hiearchy? ;
-(Multi-Stage resource separation;
+- Resource Naming, Tagging, Cost Tagging;
+- How to get notified by RDS Data row change;
+- Identity or IAM design best practices;
+- How you group/reuse servics in projects/stages, such as SecurityGroup, Role, some hiearchy?
+- Multi-Stage resource separation;
+- Cloudwatch Alarm setup (Rules); 
+- How to export performance-related Cloudwatch Metrics;
 
 ** Authentication,Authorization
-( Integration such as AzureAD, GooglePlus;
-(JWT, API Key, User cred, Signed HTTP Request;
+- Integration such as AzureAD, GooglePlus;
+- JWT, API Key, User cred, Signed HTTP Request;
 
-** What's your Do's, Don'ts, Gotchas and lessons that you have learned over the years
-or your curated cheatsheets
+
+
 			</textarea>
 			</section>
 
